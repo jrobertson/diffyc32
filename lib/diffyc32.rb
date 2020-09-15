@@ -11,6 +11,7 @@ class DiffyC32
   using ColouredText
 
   def initialize(s1, s2)
+    
     html = Diffy::Diff.new(s1, s2).to_s(:html)
 
     doc = Rexle.new(html)
@@ -18,11 +19,21 @@ class DiffyC32
     a2 = a.map do |e|
       txt = case e.name.to_sym
       when :del
-        colour_strong(e, :red)
-        ' - '.red + ' ' + e.plaintext
+        if e.text('strong').to_s =~ /^\s+$/ then
+          colour_strong(e, :bg_gray)
+        else
+          colour_strong(e, :red)          
+        end
+        ' - '.red + ' ' + e.plaintext        
       when :ins
-        colour_strong(e) {|x| x.light_green}
-        ' + '.green + ' ' + e.plaintext
+        puts e.text('strong').to_s.inspect
+        if e.text('strong').to_s =~ /^\s+$/ then
+          colour_strong(e, :bg_green)
+        else
+          colour_strong(e) {|x| x.light_green}          
+        end
+        ' + '.green + ' ' + e.plaintext        
+        
       when :span
         '   ' + ' ' + e.plaintext
       else
